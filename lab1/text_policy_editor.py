@@ -1,4 +1,3 @@
-import lab1.search_bar_functionality
 import json
 from tkinter import *
 from tkinter import filedialog
@@ -8,7 +7,131 @@ from tkinter import colorchooser
 root = Tk()
 root.title('Lab 1 - Ana Sarapova')
 #root.iconbitmap('D:\workspace\CS\lab1\icon.ico')
-root.geometry("1000x600")
+root.geometry("1200x700")
+
+
+# Update the listbox
+def update(data):
+    # Clear the listbox
+    my_list.delete(0, END)
+
+    # Add listing to listbox
+    for item in data:
+        my_list.insert(END, item)
+
+# Update entry box with listbox clicked
+def fillout(event):
+    # Delere whatever is in the entry box
+    my_entry.delete(0, END)
+
+    # Add clinked list item to entry box
+    my_entry.insert(0, my_list.get(ANCHOR))
+
+# Create a function to check entry vs listbox
+def check(event):
+    # Grab what was typed
+    typed = my_entry.get()
+
+    if typed == '':
+        data = listing
+    else:
+        data = []
+        for item in listing:
+            if typed.lower() in item.lower():
+                data.append(item)
+    
+    # Update listbox with selected items
+    update(data)
+
+def find():
+    global start_occurrences
+    global end_occurrences
+    global index_word
+    
+    start_occurrences = []
+    end_occurrences = [] 
+    index_word = 0 
+    
+    my_text.tag_remove('found', '1.0', END)
+     
+    s = my_entry.get()
+
+    if s:
+        idx = '1.0'
+        while 1:
+            idx = my_text.search(s, idx, nocase=1,
+                              stopindex=END)
+            if not idx: break
+            
+            start_occurrences.append(idx)
+
+            lastidx = '%s+%dc' % (idx, len(s))
+            end_occurrences.append(lastidx)
+
+            idx = lastidx
+
+        next_word()
+
+
+def next_word():
+    global index_word
+    global start_occurrences
+    global end_occurrences
+    
+    if index_word < len(start_occurrences):
+        my_text.tag_remove('found', '1.0', END)
+        idx = start_occurrences[index_word]
+        lastidx = end_occurrences[index_word]
+        my_text.tag_add('found', idx, lastidx)
+        to_see = int(idx[0:idx.find('.')])
+        my_text.yview(to_see - 10)
+        if index_word < (len(start_occurrences) - 1):
+            index_word += 1
+        my_text.tag_config('found', foreground='black', background = 'red')
+ 
+
+def back_word():
+    global index_word
+    global start_occurrences
+    global end_occurrences
+
+    if index_word >= 0:
+        my_text.tag_remove('found', '1.0', END)
+        idx = start_occurrences[index_word]
+        lastidx = end_occurrences[index_word]
+        my_text.tag_add('found', idx, lastidx)
+        to_see = int(idx[0:idx.find('.')])
+        my_text.yview(to_see - 10)
+        if (index_word > 0):
+            index_word -= 1
+        my_text.tag_config('found', foreground='black', background = 'red')
+
+# Create an entry box
+my_entry = Entry(root, font=("Tahoma", 11))
+my_entry.pack(ipady = 5, ipadx = 100)
+# setting focus
+my_entry.focus_set()
+
+# Create a listbox
+my_list = Listbox(root, width=50)
+my_list.pack(pady=10)
+
+# Create a list for search bar
+listing = ["password", "type", "description", "check_type", "group_policy", "display_name", "value_type", "value_data"]
+
+# Add the searching items to the list
+update(listing)
+
+# Create a binding on the listbox onclick
+my_list.bind("<<ListboxSelect>>", fillout)
+
+# Create a binding on the entry box
+my_list.bind("<KeyRelease>", check)
+
+# adding of search buttom
+button = Button(my_entry, text = 'Find')
+button.pack(side = RIGHT)
+my_entry.pack(side = TOP)
 
 # Create new file function
 def new_file():
@@ -85,7 +208,6 @@ def save_to_json():
 		# Save the file
 		with open(text_file, 'w') as outfile:
 			
-
 			contents = my_text.get(1.0, END)
 			contents = contents.replace('            :', ':')
 			contents = contents.replace('           :', ':')
@@ -257,14 +379,6 @@ file_menu.add_command(label="Export to Json", command=save_to_json)
 file_menu.add_separator
 file_menu.add_command(label="Exit", command=root.quit)
 
-# Add Edit Menu
-edit_menu = Menu(my_menu, tearoff=False)
-my_menu.add_cascade(label="Edit", menu=edit_menu)
-edit_menu.add_command(label="Cut")
-edit_menu.add_command(label="Copy")
-edit_menu.add_command(label="Undo")
-edit_menu.add_command(label="Redo")
-
 # Add Color Menu
 color_menu = Menu(my_menu, tearoff=False)
 my_menu.add_cascade(label="Colors", menu=color_menu)
@@ -272,11 +386,17 @@ color_menu.add_command(label="Selected text", command=text_color)
 color_menu.add_command(label="All text", command=all_text_color)
 color_menu.add_command(label="Background", command=bg_color)
 
+back_button = Button(my_entry, text = 'Back')
+back_button.pack(side = RIGHT)
+
+next_button = Button(my_entry, text = 'Next')
+next_button.pack(side = RIGHT)
+next_button.config(command = next_word)
+back_button.config(command = back_word)
+button.config(command=find)
+
 # Add status bar to bottom of app
 status_bar = Label(root, text='Ready        ', anchor=E)
 status_bar.pack(fill=X, side=BOTTOM, ipady=5)
-
-
-lab1.search_bar_functionality.root.mainloop()
 
 root.mainloop()

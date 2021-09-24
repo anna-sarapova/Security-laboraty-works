@@ -26,7 +26,7 @@ def fillout(event):
     my_entry.insert(0, my_list.get(ANCHOR))
 
 # Create a function to check entry vs listbox
-def check(e):
+def check(event):
     # Grab what was typed
     typed = my_entry.get()
 
@@ -48,6 +48,17 @@ my_lable.pack(pady=20)
 # Create an entry box
 my_entry = Entry(root, font=("Helvetica", 20))
 my_entry.pack()
+
+# # adding of single line text box
+# edit = Entry(my_entry)
+# # positioning of text box
+# edit.pack(side = LEFT, fill = BOTH, expand = 1)
+# # setting focus
+# edit.focus_set()
+# # adding of search buttom
+# butt = Button(my_entry, text = 'Find')
+# butt.pack(side = RIGHT)
+# my_entry.pack(side = TOP)
 
 # Create a listbox
 my_list = Listbox(root, width=50)
