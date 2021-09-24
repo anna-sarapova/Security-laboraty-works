@@ -1,3 +1,4 @@
+import lab1.search_bar_functionality
 import json
 from tkinter import *
 from tkinter import filedialog
@@ -267,7 +268,7 @@ edit_menu.add_command(label="Redo")
 # Add Color Menu
 color_menu = Menu(my_menu, tearoff=False)
 my_menu.add_cascade(label="Colors", menu=color_menu)
-color_menu.add_command(label="Selected taxt", command=text_color)
+color_menu.add_command(label="Selected text", command=text_color)
 color_menu.add_command(label="All text", command=all_text_color)
 color_menu.add_command(label="Background", command=bg_color)
 
@@ -275,8 +276,7 @@ color_menu.add_command(label="Background", command=bg_color)
 status_bar = Label(root, text='Ready        ', anchor=E)
 status_bar.pack(fill=X, side=BOTTOM, ipady=5)
 
-# # Text color
-# color_text_button = Button(toolbar_frame, text="Text Color", command=text_color)
-# color_text_button.grid(row=0, column=0, padx=5)
+
+lab1.search_bar_functionality.root.mainloop()
 
 root.mainloop()
