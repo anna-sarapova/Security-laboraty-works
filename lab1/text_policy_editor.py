@@ -9,7 +9,6 @@ root.title('Lab 1 - Ana Sarapova')
 #root.iconbitmap('D:\workspace\CS\lab1\icon.ico')
 root.geometry("1200x700")
 
-
 # Update the listbox
 def update(data):
     # Clear the listbox
@@ -42,6 +41,401 @@ def check(event):
     
     # Update listbox with selected items
     update(data)
+
+# Create an entry box
+my_entry = Entry(root, font=("Tahoma", 11))
+my_entry.pack(ipady = 5, ipadx = 100)
+# setting focus
+my_entry.focus_set()
+
+# Create a listbox
+my_list = Listbox(root, width=50)
+my_list.pack(pady=10)
+
+# Create a list for search bar
+listing = ["password", "type", "description", "check_type", "group_policy", "display_name", "value_type", "value_data"]
+
+# Add the searching items to the list
+update(listing)
+
+# Create a binding on the listbox onclick
+my_list.bind("<<ListboxSelect>>", fillout)
+
+# Create a binding on the entry box
+my_list.bind("<KeyRelease>", check)
+
+# adding of search buttom
+button = Button(my_entry, text = 'Find')
+button.pack(side = RIGHT)
+my_entry.pack(side = TOP)
+
+# Create new file function
+def new_file():
+    my_text.delete("1.0", END) #delete previous text
+    root.title('New File - Text Editor')  #update status bars
+    status_bar.config(text="New File        ")
+
+def find_all(a_str, sub):
+	start = 0
+	while True:
+		start = a_str.find(sub, start)
+		if start == -1: return
+		yield start
+		start += len(sub) #use start += 1 to find overlapping matches
+
+# Open files
+def open_file():
+	global number_of_jsons
+	global to_json
+	global extension
+	global current_file
+
+	# Delete previous text
+	my_text.delete('1.0', END)
+	
+	# Grab  Filename
+	text_file = filedialog.askopenfilename(
+		initialdir = 'lab1/policies/',
+		title = 'Open File', filetypes = (('All Files', '*.*'), ) )
+	
+	current_file = text_file
+	
+	# Update Status bars
+	name = text_file
+	status_bar.config(text = f'{name}       ')
+	name = name.replace('lab1/policies/', '')
+	root.title(f'{name} - Text Editor')
+
+	extension = ''
+	i = len(name) - 1
+	while name[i] != '.':
+		extension += name[i]
+		i-=1
+	extension = extension[::-1]
+
+	# Open the file
+	if extension == 'audit':
+		text_file = open(text_file, 'r')
+		contents = text_file.read()
+
+		contents = contents.replace('            :', ':')
+		contents = contents.replace('           :', ':')
+		contents = contents.replace('          :', ':')
+		contents = contents.replace('         :', ':')
+		contents = contents.replace('        :', ':')
+		contents = contents.replace('       :', ':')
+		contents = contents.replace('      :', ':')
+		contents = contents.replace('     :', ':')
+		contents = contents.replace('    :', ':')
+		contents = contents.replace('   :', ':')
+		contents = contents.replace('  :', ':')
+		contents = contents.replace(' :', ':')
+
+		start = list(find_all(contents, '<custom_item>'))
+		ending = list(find_all(contents, '</custom_item>'))
+
+		custom_item = {} 
+
+		custom_item['PASSWORD_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											  'check_type': [], 'password_policy': []}
+		custom_item['LOCKOUT_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											 'check_type': [], 'lockout_policy': []}
+		custom_item['KERBEROS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											  'check_type': [], 'kerberos_policy': []}
+		custom_item['AUDIT_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										   'check_type': [], 'audit_policy': []}
+		custom_item['AUDIT_POLICY_SUBCATEGORY'] = {'type': [], 'description': [], 'value_type': [],
+													   'value_data': [], 'check_type': [], 'audit_policy_policy': []}
+		custom_item['AUDIT_POWERSHELL'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											   'powershell_args:': [], 'only_show_cmd_output:': [], 'check_type': [],
+											   'severity:': [], 'powershell_option': [], 'powershell_console_file:': []}
+		custom_item['AUDIT_FILEHASH_POWERSHELL'] = {'type': [], 'description': [], 'value_type': [], 'file': [],
+														'value_data': []}
+		custom_item['AUDIT_IIS_APPCMD'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											   'appcmd_args': [], 'only_show_cmd_output': [], 'check_type': [],
+											   'severity': [], 'appcmd_list': [], 'appcmd_filter': [],
+											   'appcmd_filler_value': []}
+		custom_item['AUDIT_ALLOWED_OPEN_PORTS'] = {'type': [], 'description': [], 'value_type': [],
+													   'value_data': [], 'port_type': []}
+		custom_item['AUDIT_DENIED_OPEN_PORTS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+													  'port_type': []}
+		custom_item['AUDIT_PROCESS_ON_PORT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+													'port_type': [], 'port_no': [], 'port_option': [], 'check_type': []}
+		custom_item['AUDIT_USER_TIMESTAMPS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+													'timestamp': [], 'ignore_users': [], 'check_type': []}
+		custom_item['BANNER_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										   'reg_key': [], 'reg_item': [], 'is_substring': []}
+		custom_item['CHECK_ACCOUNT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											'account_type': [], 'check_type': []}
+		custom_item['CHECK_LOCAL_GROUP'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												'group_type': [], 'check_type': []}
+		custom_item['ANONYMOUS_SID_SETTING'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+													'check_type': []}
+		custom_item['SERVICE_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											 'check_type': [], 'service_name': []}
+		custom_item['GROUP_MEMBERS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												   'check_type': [], 'group_name': []}
+		custom_item['USER_GROUPS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												 'check_type': [], 'user_name': []}
+		custom_item['USER_RIGHTS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												 'check_type': [], 'right_type': [], 'use_domain': []}
+		custom_item['FILE_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										 'check_type': [], 'file_option': []}
+		custom_item['FILE_VERSION'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										   'check_type': [], 'file': [], 'file_option': [], 'check_type': []}
+		custom_item['FILE_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											   'check_type': [], 'file': [], 'acl_option': []}
+		custom_item['FILE_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										 'check_type': [], 'file': [], 'acl_option': []}
+		custom_item['FILE_CONTENT_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												 'check_type': [], 'regex': [], 'expect': [], 'file_option': [],
+												 'avoid_floppy_access': []}
+		custom_item['FILE_CONTENT_CHECK_NOT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+													 'check_type': [], 'regex': [], 'expect': [], 'file_option': []}
+		custom_item['REG_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										'reg_key': [], 'reg_item': [], 'key_item': []}
+		custom_item['REGISTRY_SETTING'] = {'type': [], 'description': [], 'info': [], 'value_type': [],
+											   'value_data': [], 'reg_key': [], 'reg_item': [], 'reg_enum': [],
+											   'reg_option': []}
+		custom_item['REGISTRY_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												   'check_type': [], 'reg_key': [], 'acl_option': []}
+		custom_item['REGISTRY_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											 'check_type': [], 'reg_key': [], 'acl_option': []}
+		custom_item['REGISTRY_TYPE'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											'reg_key': [], 'reg_item': [], 'reg_option': []}
+		custom_item['SERVICE_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+												  'check_type': [], 'service': [], 'acl_option': []}
+		custom_item['SERVICE_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+											'check_type': [], 'service': [], 'acl_option': []}
+		custom_item['WMI_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
+										 'check_type': [], 'wmi_namespace': [], 'wmi_request': [], 'wmi_attribute': [],
+										 'wmi_key': []}
+
+		general_custom_item = {}
+		general_custom_item_keys = []
+
+
+		for key in custom_item:
+			keys_list = list(custom_item[key])
+			for key_x in keys_list:
+				if key_x not in general_custom_item_keys:
+					general_custom_item_keys.append(key_x)
+
+		general_custom_item['serial_number_custom_item'] = []
+
+		for key in general_custom_item_keys:
+			general_custom_item[key] = []
+
+		general_custom_item['info'] = []
+		general_custom_item['reference'] = []
+		general_custom_item['solution'] = []
+		general_custom_item['see_also'] = []
+
+		for i in range(len(start)):
+			content_type_block = contents[start[i] + 13 : ending[i]]
+			general_custom_item['serial_number_custom_item'].append(i)
+			for element in list(general_custom_item.keys()):
+				length_of_element = len(element) + 1
+				if content_type_block.find(element) != -1:
+					general_custom_item[element].append(content_type_block[content_type_block.find(element + ':') + length_of_element: content_type_block[content_type_block.find(element + ':') + length_of_element :].find('\n') + content_type_block.find(element + ':') + length_of_element ].strip())
+				else:
+					if element != 'serial_number_custom_item':
+						general_custom_item[element].append('')
+
+		number_of_jsons = len(general_custom_item['serial_number_custom_item'])
+
+		to_json = []
+		for i in range(len(general_custom_item['type'])):
+			to_print = {}
+			for element in list(general_custom_item.keys()):
+				if general_custom_item[element][i] != '':
+					to_print[element] = general_custom_item[element][i]
+			to_json.append(to_print)
+
+
+		my_text.insert(END, json.dumps(to_json, indent = 4))
+
+		#Close the opened file
+		text_file.close()
+	
+	elif extension == 'json':
+
+		text_file = open(text_file, 'r')
+		to_json = json.load(text_file)
+		number_of_jsons = len(to_json)
+		my_text.insert(END, json.dumps(to_json, indent = 4))
+		text_file.close()
+
+# Save as file
+def save_as_file():
+	global number_of_jsons
+	global to_json
+	global extension
+
+	def check():
+		global custom_items_to_use
+		global number_of_jsons
+		global to_json
+		global extension
+		global current_file
+
+		custom_items_to_use = []
+		for i in range(len(chkbuttons)):
+			if var[i].get() == 1:
+				custom_items_to_use.append(i)
+		root_checkbox.destroy()
+		
+		text_file = filedialog.asksaveasfilename(
+				defaultextension = '.*',
+				initialdir = 'lab1/policies/',
+				title = 'Save File', filetypes = (('All Files', '*.*'), ))
+
+		if text_file:
+		# Update Status Bars
+			name = text_file
+			status_bar.config(text = f'{name}       ')
+			name = name.replace('lab1/policies/', '')
+			root.title(f'{name} - Text Editor')
+
+			to_print = []
+			for i in custom_items_to_use:
+				to_print.append(to_json[i])
+
+		# Save the file
+			text_file = open(text_file, 'w')
+			json.dump(to_print, text_file, indent = 4)
+		
+		# Close the file
+			text_file.close()
+
+	def select_all_():
+
+		for i in range(len(chkbuttons)):
+			var[i].set(1)
+
+
+	def deselect_all_():
+
+		for i in range(len(chkbuttons)):
+			var[i].set(0)
+	
+	root_checkbox = Tk()
+	root_checkbox.title('Select custom item boxes')
+	# root_checkbox.iconbitmap('C:/Users/user/Desktop/CS/Lab 1/icon.ico')
+	sb = Scrollbar(root_checkbox, orient = 'vertical')
+	text = Text(root_checkbox, width = 40, height = 20, yscrollcommand = sb.set)
+	sb.config(command = text.yview)
+	sb.pack(side = 'right', fill = 'y')
+	var = []
+	for i in range(number_of_jsons):
+		var.append(IntVar(root_checkbox))
+	text.pack(side = 'top', fill = 'both', expand = True)
+	chkbuttons = [Checkbutton(root_checkbox, text="Custom Item Nr.%s" % i, variable = var[i], onvalue = 1, offvalue = 0)
+                          for i in range(number_of_jsons)]
+	for cb in chkbuttons:
+		text.window_create('end', window = cb)
+		text.insert('end', '\n')
+
+	submit = Button(root_checkbox, text = 'Submit')
+	submit.pack(side = BOTTOM)
+	submit.config(command = check)
+
+	select_all = Button(root_checkbox, text = 'Select All')
+	select_all.pack(side = TOP)
+	select_all.config(command = select_all_)
+
+	deselect_all = Button(root_checkbox, text = 'Deselect All')
+	deselect_all.pack(side = TOP)
+	deselect_all.config(command = deselect_all_)	
+
+	root_checkbox.mainloop()   
+
+
+def export():
+	global number_of_jsons
+	global to_json
+	global extension
+
+	def check():
+		global custom_items_to_use
+		global number_of_jsons
+		global to_json
+		global extension
+		global current_file
+
+		custom_items_to_use = []
+		for i in range(len(chkbuttons)):
+			if var[i].get() == 1:
+				custom_items_to_use.append(i)
+		root_checkbox.destroy()
+		
+		text_file = filedialog.asksaveasfilename(
+				defaultextension = '.*',
+				initialdir = 'lab1/policies/',
+				title = 'Save File', filetypes = (('All Files', '*.*'), ))
+
+		if text_file:
+		# Update Status Bars
+			name = text_file
+			status_bar.config(text = f'{name}       ')
+			name = name.replace('lab1/policies/', '')
+			root.title(f'{name} - Text Editor')
+
+			text_file = open(text_file, 'w')
+
+			to_print = []
+			for i in custom_items_to_use:
+				text_file.write('<custom_item>\n')
+				for j in to_json[i]:
+					text_file.write('\t' + j + ' : ' + str(to_json[i][j]) + '\n')
+				text_file.write('</custom_item>\n')
+
+		
+	 		# Close the file
+			text_file.close()
+
+
+	def select_all_():
+
+		for i in range(len(chkbuttons)):
+			var[i].set(1)
+
+
+	def deselect_all_():
+
+		for i in range(len(chkbuttons)):
+			var[i].set(0)
+	
+	root_checkbox = Tk()
+	root_checkbox.title('Select custom item boxes')
+	# root_checkbox.iconbitmap('C:/Users/user/Desktop/CS/Lab 1/icon.ico')
+	sb = Scrollbar(root_checkbox, orient = 'vertical')
+	text = Text(root_checkbox, width = 40, height = 20, yscrollcommand = sb.set)
+	sb.config(command = text.yview)
+	sb.pack(side = 'right', fill = 'y')
+	var = []
+	for i in range(number_of_jsons):
+		var.append(IntVar(root_checkbox))
+	text.pack(side = 'top', fill = 'both', expand = True)
+	chkbuttons = [Checkbutton(root_checkbox, text="Custom Item Nr.%s" % i, variable = var[i], onvalue = 1, offvalue = 0)
+                          for i in range(number_of_jsons)]
+	for cb in chkbuttons:
+		text.window_create('end', window = cb)
+		text.insert('end', '\n')
+
+	submit = Button(root_checkbox, text = 'Submit')
+	submit.pack(side = BOTTOM)
+	submit.config(command = check)
+
+	select_all = Button(root_checkbox, text = 'Select All')
+	select_all.pack(side = TOP)
+	select_all.config(command = select_all_)
+
+	deselect_all = Button(root_checkbox, text = 'Deselect All')
+	deselect_all.pack(side = TOP)
+	deselect_all.config(command = deselect_all_)	
+
+	root_checkbox.mainloop()  
 
 def find():
     global start_occurrences
@@ -89,7 +483,6 @@ def next_word():
             index_word += 1
         my_text.tag_config('found', foreground='black', background = 'red')
  
-
 def back_word():
     global index_word
     global start_occurrences
@@ -105,213 +498,6 @@ def back_word():
         if (index_word > 0):
             index_word -= 1
         my_text.tag_config('found', foreground='black', background = 'red')
-
-# Create an entry box
-my_entry = Entry(root, font=("Tahoma", 11))
-my_entry.pack(ipady = 5, ipadx = 100)
-# setting focus
-my_entry.focus_set()
-
-# Create a listbox
-my_list = Listbox(root, width=50)
-my_list.pack(pady=10)
-
-# Create a list for search bar
-listing = ["password", "type", "description", "check_type", "group_policy", "display_name", "value_type", "value_data"]
-
-# Add the searching items to the list
-update(listing)
-
-# Create a binding on the listbox onclick
-my_list.bind("<<ListboxSelect>>", fillout)
-
-# Create a binding on the entry box
-my_list.bind("<KeyRelease>", check)
-
-# adding of search buttom
-button = Button(my_entry, text = 'Find')
-button.pack(side = RIGHT)
-my_entry.pack(side = TOP)
-
-# Create new file function
-def new_file():
-    my_text.delete("1.0", END) #delete previous text
-    root.title('New File - Text Editor')  #update status bars
-    status_bar.config(text="New File        ")
-
-# Open files
-def open_file():
-    my_text.delete("1.0", END) #delete previous text
-
-    # Grab Filename
-    text_file = filedialog.askopenfilename(initialdir = 'lab1/policies',
-		title = 'Open File', filetypes = (('All Files', '*.*'), ) )
-
-    # Update Status bars
-    name = text_file
-    status_bar.config(text = f'{name}       ')
-    name = name.replace('lab1', '')
-    root.title(f'{name} - Text Editor')
-
-    #Open the file
-    text_file = open(text_file, 'r')
-    stuff = text_file.read()
-
-    #Add file to textbox
-    my_text.insert(END, stuff)
-
-    #Close the open file
-    text_file.close()
-
-# Save as file
-def save_as_file():
-    text_file = filedialog.asksaveasfilename(defaultextension=".*",
-        initialdir="lab1/policies/", 
-        title='Save file', 
-        filetypes=(("Text Files", "*.txt"), ("Python Files", "*.py"),('All Files', '*.*')))
-    if text_file:
-        # Update status bar
-        name = text_file
-        status_bar.config(text=f'Saved: {name}       ')
-        name = name.replace('lab1/policies/', '')
-        root.title(f'{name} - Text Editor')
-
-    # Save the file
-        text_file = open(text_file, 'w')
-        text_file.write(my_text.get(1.0, END))
-		
-		# Close the file
-        text_file.close()
-
-
-def find_all(a_str, sub):
-	start = 0
-	while True:
-		start = a_str.find(sub, start)
-		if start == -1: return
-		yield start
-		start += len(sub) #use start += 1 to find overlapping matches
-
-def save_to_json():
-	text_file = filedialog.asksaveasfilename(
-		defaultextension = '.*',
-		initialdir = 'lab1',
-		title = 'Save File', filetypes = (('All Files', '*.*'), ))
-
-	if text_file:
-		# Update Status Bars
-		name = text_file
-		status_bar.config(text = f'{name}      ')
-		name = name.replace('lab1/policies', '')
-		root.title(f'{name} - Text Editor')
-
-		# Save the file
-		with open(text_file, 'w') as outfile:
-			
-			contents = my_text.get(1.0, END)
-			contents = contents.replace('            :', ':')
-			contents = contents.replace('           :', ':')
-			contents = contents.replace('          :', ':')
-			contents = contents.replace('         :', ':')
-			contents = contents.replace('        :', ':')
-			contents = contents.replace('       :', ':')
-			contents = contents.replace('      :', ':')
-			contents = contents.replace('     :', ':')
-			contents = contents.replace('    :', ':')
-			contents = contents.replace('   :', ':')
-			contents = contents.replace('  :', ':')
-			contents = contents.replace(' :', ':')
-
-			start = list(find_all(contents, '<custom_item>'))
-			ending = list(find_all(contents, '</custom_item>'))
-
-			custom_item = {}
-
-			custom_item['PASSWORD_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											  'check_type': [], 'password_policy': []}
-			custom_item['LOCKOUT_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											 'check_type': [], 'lockout_policy': []}
-			custom_item['KERBEROS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											  'check_type': [], 'kerberos_policy': []}
-			custom_item['AUDIT_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										   'check_type': [], 'audit_policy': []}
-			custom_item['AUDIT_POLICY_SUBCATEGORY'] = {'type': [], 'description': [], 'value_type': [],
-													   'value_data': [], 'check_type': [], 'audit_policy_policy': []}
-			custom_item['AUDIT_POWERSHELL'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											   'powershell_args:': [], 'only_show_cmd_output:': [], 'check_type': [],
-											   'severity:': [], 'powershell_option': [], 'powershell_console_file:': []}
-			custom_item['AUDIT_FILEHASH_POWERSHELL'] = {'type': [], 'description': [], 'value_type': [], 'file': [],
-														'value_data': []}
-			custom_item['AUDIT_IIS_APPCMD'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											   'appcmd_args': [], 'only_show_cmd_output': [], 'check_type': [],
-											   'severity': [], 'appcmd_list': [], 'appcmd_filter': [],
-											   'appcmd_filler_value': []}
-			custom_item['AUDIT_ALLOWED_OPEN_PORTS'] = {'type': [], 'description': [], 'value_type': [],
-													   'value_data': [], 'port_type': []}
-			custom_item['AUDIT_DENIED_OPEN_PORTS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-													  'port_type': []}
-			custom_item['AUDIT_PROCESS_ON_PORT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-													'port_type': [], 'port_no': [], 'port_option': [], 'check_type': []}
-			custom_item['AUDIT_USER_TIMESTAMPS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-													'timestamp': [], 'ignore_users': [], 'check_type': []}
-			custom_item['BANNER_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										   'reg_key': [], 'reg_item': [], 'is_substring': []}
-			custom_item['CHECK_ACCOUNT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											'account_type': [], 'check_type': []}
-			custom_item['CHECK_LOCAL_GROUP'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												'group_type': [], 'check_type': []}
-			custom_item['ANONYMOUS_SID_SETTING'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-													'check_type': []}
-			custom_item['SERVICE_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											 'check_type': [], 'service_name': []}
-			custom_item['GROUP_MEMBERS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												   'check_type': [], 'group_name': []}
-			custom_item['USER_GROUPS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												 'check_type': [], 'user_name': []}
-			custom_item['USER_RIGHTS_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												 'check_type': [], 'right_type': [], 'use_domain': []}
-			custom_item['FILE_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										 'check_type': [], 'file_option': []}
-			custom_item['FILE_VERSION'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										   'check_type': [], 'file': [], 'file_option': [], 'check_type': []}
-			custom_item['FILE_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											   'check_type': [], 'file': [], 'acl_option': []}
-			custom_item['FILE_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										 'check_type': [], 'file': [], 'acl_option': []}
-			custom_item['FILE_CONTENT_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												 'check_type': [], 'regex': [], 'expect': [], 'file_option': [],
-												 'avoid_floppy_access': []}
-			custom_item['FILE_CONTENT_CHECK_NOT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-													 'check_type': [], 'regex': [], 'expect': [], 'file_option': []}
-			custom_item['REG_CHECK'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										'reg_key': [], 'reg_item': [], 'key_item': []}
-			custom_item['REGISTRY_SETTING'] = {'type': [], 'description': [], 'info': [], 'value_type': [],
-											   'value_data': [], 'reg_key': [], 'reg_item': [], 'reg_enum': [],
-											   'reg_option': []}
-			custom_item['REGISTRY_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												   'check_type': [], 'reg_key': [], 'acl_option': []}
-			custom_item['REGISTRY_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											 'check_type': [], 'reg_key': [], 'acl_option': []}
-			custom_item['REGISTRY_TYPE'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											'reg_key': [], 'reg_item': [], 'reg_option': []}
-			custom_item['SERVICE_PERMISSIONS'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-												  'check_type': [], 'service': [], 'acl_option': []}
-			custom_item['SERVICE_AUDIT'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-											'check_type': [], 'service': [], 'acl_option': []}
-			custom_item['WMI_POLICY'] = {'type': [], 'description': [], 'value_type': [], 'value_data': [],
-										 'check_type': [], 'wmi_namespace': [], 'wmi_request': [], 'wmi_attribute': [],
-										 'wmi_key': []}
-			for i in range(len(start)):
-				content_type_block = contents[start[i] + 13 : ending[i]]
-				type_ = content_type_block[content_type_block.find('type:') + 6: content_type_block[content_type_block.find('type:') + 5 :].find('\n') + content_type_block.find('type:') + 5 ]
-				for element in list(custom_item[type_].keys()):
-					length_of_element = len(element) + 1
-					if content_type_block.find(element) != -1:
-						custom_item[type_][element].append(content_type_block[content_type_block.find(element + ':') + length_of_element: content_type_block[content_type_block.find(element + ':') + length_of_element :].find('\n') + content_type_block.find(element + ':') + length_of_element ].strip())
-					else:
-						custom_item[type_][element].append('')
-
-			json.dump(custom_item, outfile)
 
 # Change a selected text color
 def text_color():
@@ -375,7 +561,7 @@ my_menu.add_cascade(label="File", menu=file_menu)
 file_menu.add_command(label="New", command=new_file)
 file_menu.add_command(label="Open", command=open_file)
 file_menu.add_command(label="Save As", command=save_as_file)
-file_menu.add_command(label="Export to Json", command=save_to_json)
+file_menu.add_command(label="Export to Json", command=export)
 file_menu.add_separator
 file_menu.add_command(label="Exit", command=root.quit)
 
