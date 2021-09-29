@@ -6,7 +6,6 @@ from tkinter import colorchooser
 
 root = Tk()
 root.title('Lab 1 - Ana Sarapova')
-#root.iconbitmap('D:\workspace\CS\lab1\icon.ico')
 root.geometry("1200x700")
 
 # Update the listbox
@@ -321,7 +320,6 @@ def save_as_file():
 	
 	root_checkbox = Tk()
 	root_checkbox.title('Select custom item boxes')
-	# root_checkbox.iconbitmap('C:/Users/user/Desktop/CS/Lab 1/icon.ico')
 	sb = Scrollbar(root_checkbox, orient = 'vertical')
 	text = Text(root_checkbox, width = 40, height = 20, yscrollcommand = sb.set)
 	sb.config(command = text.yview)
@@ -389,17 +387,14 @@ def export():
 				for j in to_json[i]:
 					text_file.write('\t' + j + ' : ' + str(to_json[i][j]) + '\n')
 				text_file.write('</custom_item>\n')
-
 		
 	 		# Close the file
 			text_file.close()
-
 
 	def select_all_():
 
 		for i in range(len(chkbuttons)):
 			var[i].set(1)
-
 
 	def deselect_all_():
 
@@ -408,7 +403,6 @@ def export():
 	
 	root_checkbox = Tk()
 	root_checkbox.title('Select custom item boxes')
-	# root_checkbox.iconbitmap('C:/Users/user/Desktop/CS/Lab 1/icon.ico')
 	sb = Scrollbar(root_checkbox, orient = 'vertical')
 	text = Text(root_checkbox, width = 40, height = 20, yscrollcommand = sb.set)
 	sb.config(command = text.yview)
