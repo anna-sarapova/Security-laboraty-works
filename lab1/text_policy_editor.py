@@ -539,7 +539,7 @@ text_scroll = Scrollbar(my_frame)
 text_scroll.pack(side=RIGHT, fill=Y)
 
 # Create Text Box
-my_text = Text(my_frame,width=97, height=25, font=("Helvetica", 16), selectbackground="yellow", selectforeground="black", undo=True, yscrollcommand=text_scroll.set)
+my_text = Text(my_frame,width=97, height=25, font=("Helvetica", 11), selectbackground="yellow", selectforeground="black", undo=True, yscrollcommand=text_scroll.set)
 my_text.pack()
 
 # Configure Scrollbar
