@@ -3,6 +3,8 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import font
 from tkinter import colorchooser
+import os
+import re
 
 root = Tk()
 root.title('Lab 1 - Ana Sarapova')
@@ -52,7 +54,7 @@ my_list = Listbox(root, width=50)
 my_list.pack(pady=10)
 
 # Create a list for search bar
-listing = ["password", "type", "description", "check_type", "group_policy", "display_name", "value_type", "value_data"]
+listing = ["reg_key","password", "type", "description", "check_type", "group_policy", "display_name", "value_type", "value_data"]
 
 # Add the searching items to the list
 update(listing)
@@ -67,6 +69,26 @@ my_list.bind("<KeyRelease>", check)
 button = Button(my_entry, text = 'Find')
 button.pack(side = RIGHT)
 my_entry.pack(side = TOP)
+
+
+def check_audit():
+    file = open('output.json',)
+    audit = json.load(file)
+
+    with open('audit_result.txt', 'w') as to_save:
+        for custom_item in audit:
+            cmd = 'reg query ' + custom_item['reg_key'][1:-1] + ' /v ' + custom_item['reg_item'][1:-1]
+            output = os.popen(cmd).read()
+            pattern = custom_item['value_data'][1:-1]
+            is_present = re.search(pattern, output)
+            to_save.write(custom_item['description'][1:-1] + '\t\t\t\t\t\t')
+            if is_present:
+                to_save.write('Valid' + '\n\n')
+            else:
+                to_save.write('Invalid' + '\n')
+                to_save.write('Expected: ' + custom_item['value_data'][1:-1] + '\n')
+                to_save.write('Found: ' + output + '\n\n')
+
 
 # Create new file function
 def new_file():
@@ -348,6 +370,26 @@ def save_as_file():
 
 	root_checkbox.mainloop()   
 
+def r_audit():
+	global PATH
+	global PATH_POLICIES
+
+	text_file = 'output.json'
+	name = 'output.json'
+	root.title(f'{name} - Moglan Mihai')
+	text_file = open(text_file, 'w')
+	text_file.write(my_text.get(1.0, END))
+
+	text_file.close()
+
+	check_audit()
+
+	new_file()
+	
+	text_file = 'audit_result.txt'
+	text_file = open(text_file, 'r')
+	my_text.insert(END, text_file.read())
+
 
 def export():
 	global number_of_jsons
@@ -539,7 +581,7 @@ text_scroll = Scrollbar(my_frame)
 text_scroll.pack(side=RIGHT, fill=Y)
 
 # Create Text Box
-my_text = Text(my_frame,width=97, height=25, font=("Helvetica", 16), selectbackground="yellow", selectforeground="black", undo=True, yscrollcommand=text_scroll.set)
+my_text = Text(my_frame,width=97, height=25, font=("Helvetica", 11), selectbackground="yellow", selectforeground="black", undo=True, yscrollcommand=text_scroll.set)
 my_text.pack()
 
 # Configure Scrollbar
@@ -556,6 +598,7 @@ file_menu.add_command(label="New", command=new_file)
 file_menu.add_command(label="Open", command=open_file)
 file_menu.add_command(label="Save As", command=save_as_file)
 file_menu.add_command(label="Export to Json", command=export)
+file_menu.add_command(label = 'Run Audit', command = r_audit)
 file_menu.add_separator
 file_menu.add_command(label="Exit", command=root.quit)
 
