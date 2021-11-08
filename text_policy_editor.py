@@ -27,6 +27,7 @@ def fillout(event):
     # Add clinked list item to entry box
     my_entry.insert(0, my_list.get(ANCHOR))
 
+
 # Create a function to check entry vs listbox
 def check(event):
     # Grab what was typed
@@ -75,26 +76,40 @@ def check_audit():
     file = open('output.json',)
     audit = json.load(file)
 
+    failed_audits = []
+    status_of_audits = []
+
     with open('audit_result.txt', 'w') as to_save:
         for custom_item in audit:
-            cmd = 'reg query ' + custom_item['reg_key'][1:-1] + ' /v ' + custom_item['reg_item'][1:-1]
-            output = os.popen(cmd).read()
-            pattern = custom_item['value_data'][1:-1]
-            is_present = re.search(pattern, output)
-            to_save.write(custom_item['description'][1:-1] + '\t\t\t\t\t\t')
-            if is_present:
-                to_save.write('Valid' + '\n\n')
-            else:
+            try:
+                cmd = 'reg query ' + custom_item['reg_key'][1:-1] + ' /v ' + custom_item['reg_item'][1:-1]
+                output = os.popen(cmd).read()
+                pattern = custom_item['value_data']
+                is_present = re.search(pattern, output)
+                to_save.write(custom_item['description'][1:-1] + '\t\t\t\t\t\t')
+                if is_present:
+                    status_of_audits.append(1)
+                    to_save.write('Valid' + '\n\n')
+                else:
+                    failed_audits.append(custom_item)
+                    status_of_audits.append(0)
+                    to_save.write('Invalid' + '\n')
+                    to_save.write('Expected: ' + custom_item['value_data'] + '\n')
+                    to_save.write('Found: ' + output + '\n\n')
+            except:
+                failed_audits.append(custom_item)
+                status_of_audits.append(0)
                 to_save.write('Invalid' + '\n')
-                to_save.write('Expected: ' + custom_item['value_data'][1:-1] + '\n')
-                to_save.write('Found: ' + output + '\n\n')
 
+    file_invalid = open('invalid_audits.json', 'w')
+    json.dump(failed_audits, file_invalid, indent = 4)
 
 # Create new file function
 def new_file():
     my_text.delete("1.0", END) #delete previous text
     root.title('New File - Text Editor')  #update status bars
     status_bar.config(text="New File        ")
+
 
 def find_all(a_str, sub):
 	start = 0
@@ -103,6 +118,7 @@ def find_all(a_str, sub):
 		if start == -1: return
 		yield start
 		start += len(sub) #use start += 1 to find overlapping matches
+
 
 # Open files
 def open_file():
@@ -287,6 +303,7 @@ def open_file():
 		my_text.insert(END, json.dumps(to_json, indent = 4))
 		text_file.close()
 
+
 # Save as file
 def save_as_file():
 	global number_of_jsons
@@ -371,24 +388,81 @@ def save_as_file():
 	root_checkbox.mainloop()   
 
 def r_audit():
-	global PATH
-	global PATH_POLICIES
 
 	text_file = 'output.json'
 	name = 'output.json'
-	root.title(f'{name} - Moglan Mihai')
+	root.title(f'{name} - Text Editor')
 	text_file = open(text_file, 'w')
 	text_file.write(my_text.get(1.0, END))
-
 	text_file.close()
 
 	check_audit()
-
 	new_file()
 	
 	text_file = 'audit_result.txt'
 	text_file = open(text_file, 'r')
 	my_text.insert(END, text_file.read())
+
+
+def enforce_audit():
+    text_file = 'to_enforce_audits.json'
+    name = 'to_enforce_audits.json'
+    root.title(f'{name} - Text Editor')
+    text_file = open(text_file, 'w')
+    text_file.write(my_text.get(1.0, END))
+
+    text_file.close()
+
+    cmd_backup = 'reg /e ' + 'C:\Backup.reg'
+    enforce_all_audits()
+
+    new_file()
+
+    my_text.insert(END, 'DONE! Rerun Run Audit option to check the status!')
+
+
+def enforce_all_audits():
+    file = open('to_enforce_audits.json', )
+    audit = json.load(file)
+
+    for custom_item in audit:
+        cmd_export = 'reg export ' + custom_item['reg_key'][1:-1] + ' policy_backup' + str(custom_item['custom_item_number']) + '.reg' + ' /y '
+        output_export = os.popen(cmd_export).read()
+        cmd_delete = 'reg delete ' + custom_item['reg_key'][1:-1] + ' /v ' +custom_item['reg_item'][1:-1] + ' /f'
+        output_delete = os.popen(cmd_delete).read()
+        v = custom_item['value_data']
+        try:
+            cmd_add = 'reg add ' + custom_item['reg_key'][1:-1] + ' /v ' + custom_item['reg_item'][1:-1] + ' /t ' + 'REG' + custom_item['value_type'][6:] + ' /d ' + hex(int(v))
+            output_add = os.popen(cmd_add).read()
+        except ValueError:
+            pass
+
+
+def rollback():
+    global audit_status
+
+    text_file = 'to_enforce_audits.json'
+    name = 'to_enforce_audits.json'
+    root.title(f'{name} - Text Editor')
+    text_file = open(text_file, 'w')
+    text_file.write(my_text.get(1.0, END))
+
+    text_file.close()
+
+    rollback_audits()
+
+    new_file()
+
+    my_text.insert(END, 'DONE! Rerun Run Audit option to check the status!')
+
+
+def rollback_audits():
+    file = open('output1.json', )
+    audit = json.load(file)
+
+    for custom_item in audit:
+        cmd_import = 'reg import ' + 'policy_backup' + str(custom_item['custom_item_number']) + '.reg'
+        output_import= os.popen(cmd_import).read()
 
 
 def export():
@@ -599,6 +673,8 @@ file_menu.add_command(label="Open", command=open_file)
 file_menu.add_command(label="Save As", command=save_as_file)
 file_menu.add_command(label="Export to Json", command=export)
 file_menu.add_command(label = 'Run Audit', command = r_audit)
+file_menu.add_command(label='Enforce Audit', command=enforce_audit)
+file_menu.add_command(label='Rollback', command=rollback)
 file_menu.add_separator
 file_menu.add_command(label="Exit", command=root.quit)
 
