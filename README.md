@@ -24,6 +24,20 @@ This is a windows security policies parser program written in Python using the t
 
 • Output the results of the audit on screen.
 
+# Task 4
+• Select the settings to be enforced (a subset of ”Failed”, or all of them);
+
+• Enforce the policy on at least 5 settings (edit the selected settings in your system);
+
+• Rollback to the system’s initial settings.
+
+# Task 5
+• Select the settings to be enforced (a subset of ”Failed”, or all of them);
+
+• Enforce the policy on at least 20 settings (edit the selected settings in your system);
+
+• Rollback to the system’s initial settings.
+
 # Implementation
 
 ## Step 1
@@ -59,6 +73,39 @@ Open the exported `Json` file with the selected policies with the `Open` funtion
 `File -> Run Audit`
 
 ## Step 4
+
+If in the exported `Json` after STEP 3 there are invalid audits, they will appear in the file `invalid_ausits.json`. 
+
+`invalid_ausits.json -> Open`
+`invalid_ausits.json -> Enforce Audit`
+
+The result display the status: "Done!...".
+
+## Step 5
+
+Check the status of invalid audits and restore modified settings.
+
+`invalid_ausits.json -> Open`
+`invalid_ausits.json -> Run Audit`
+
+The result will be the status `Valid` for every audit.
+
+## Step 6
+
+Rollback the audit files to the initial state.
+
+`invalid_ausits.json -> Rollback`
+
+## Step 6
+
+Open the initial exported `Json` file with the selected policies and check status.
+
+`File -> Open`
+`File -> Run Audit`
+
+The result will be the initial audits with `Invalid` state.
+
+## Step 7
 
 Press `Exit` the `Text Editor` window.
 
